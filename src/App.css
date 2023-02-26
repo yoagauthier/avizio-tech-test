@@ -1,0 +1,27 @@
+.App {
+  text-align: center;
+  height: 100vh;
+  background-color: beige;
+  padding: 20px;
+}
+
+.Grid {
+  display: flex;
+  border: solid;
+  border-color: black;
+  padding: 20px;
+  background-color: aqua;
+}
+
+.DayColumn {
+  display: block;
+  border: solid;
+  border-color: black;
+}
+
+.Overlay {
+  position: absolute;
+  /* border: solid; */
+  /* border-color: black; */
+  background-color: rgba(137, 43, 226, 0.5);
+}
