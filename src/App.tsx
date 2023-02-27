@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import Modal from './Modal';
-import ZoomAPI from './zoomApi';
 import './App.css';
 
 const COLUMN_WITDH = 120;
 export const EVENT_HEIGHT = 20;
-const zoomAPI = new ZoomAPI();
 
 type TimeSlotCellProps = {
   id: string;
@@ -14,7 +13,7 @@ type TimeSlotCellProps = {
 
 function TimeSlotCell(props: TimeSlotCellProps) {
   return (
-    <div id={props.id} style={{ height: EVENT_HEIGHT }}>
+    <div id={props.id} className="TimeSlotCell" style={{ height: EVENT_HEIGHT }}>
       {props.displayedHour}:00
     </div>
   );
@@ -61,8 +60,8 @@ function DayColumn(props: DayColumnProps) {
       <h2>{props.day}</h2>
       {Array.from(Array(24).keys()).map(hour => (
         <TimeSlotCell
-          key={`${props.day}T${hour}:00`}
-          id={`${props.day}T${hour}:00`}
+          key={`${props.day}T${hour}:00Z`}
+          id={`${props.day}T${hour}:00Z`}
           displayedHour={hour}
         />
       ))}
@@ -76,6 +75,7 @@ function App() {
   const [overlayHeight, setOverlayHeight] = useState<number | null>(null);
   const [meetingStartTime, setMeetingStartTime] = useState<string | null>(null);
   const [meetingEndTime, setMeetingEndTime] = useState<string | null>(null);
+  const [meetingTopic, setMeetingTopic] = useState<string>('Discussion');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -105,7 +105,13 @@ function App() {
 
   const onMeetingConfirmation = async () => {
     if (meetingStartTime) {
-      await zoomAPI.createMeeting(meetingStartTime);
+      try {
+        await axios.post('http://localhost:5000/create-zoom-meeting', {
+          startAt: meetingStartTime,
+        });
+      } catch (e) {
+        console.error('Issue calling backend', e);
+      }
     }
   };
   return (
@@ -137,6 +143,12 @@ function App() {
         <Modal setIsModalOpen={setIsModalOpen} onClose={onMeetingConfirmation}>
           <p>Heure de début : {meetingStartTime} </p>
           <p>Heure de début : {meetingEndTime} </p>
+          <p>
+            <label>
+              Quel est le sujet du meeting ?
+              <input value={meetingTopic} onChange={e => setMeetingTopic(e.target.value)} />
+            </label>
+          </p>
         </Modal>
       )}
     </>

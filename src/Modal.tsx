@@ -17,15 +17,17 @@ const Modal = (props: ModalProps) => {
   return (
     <>
       <div className="Modal">
-        <h2>Booker un meting Zoom</h2>
+        <h2>Booker un meeting Zoom</h2>
         {props.children}
-        <button type="button" onClick={() => props.setIsModalOpen(false)}>
-          Annuler
-        </button>
+        <p>
+          <button type="button" onClick={() => props.setIsModalOpen(false)}>
+            Annuler
+          </button>
 
-        <button type="button" onClick={onClose}>
-          Valider
-        </button>
+          <button type="button" onClick={onClose}>
+            Valider
+          </button>
+        </p>
       </div>
       <div className="ModalBackground" onClick={() => props.setIsModalOpen(false)} />
     </>

@@ -1,11 +1,15 @@
 import axios, { Axios } from 'axios';
 
+/**
+ * Note : This class is not used as it is not possible to call the Zoom API using
+ * a JWT because of CORS issues.
+ */
 class ZoomAPI {
   private axiosInstance: Axios;
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: 'https://api.zoom.us/v2',
+      baseURL: 'https://localhost:5000/',
 
       headers: {
         'Content-Type': 'application/json',
