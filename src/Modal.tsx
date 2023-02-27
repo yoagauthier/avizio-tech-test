@@ -1,8 +1,8 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 
 type ModalProps = {
   setIsModalOpen: (isOpen: boolean) => void;
-  onClose?: () => void;
+  onClose: () => Promise<void>;
   children: ReactNode;
 };
 

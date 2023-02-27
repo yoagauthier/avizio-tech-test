@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
+import ZoomAPI from './zoomApi';
 import './App.css';
 
 const COLUMN_WITDH = 120;
 export const EVENT_HEIGHT = 20;
+const zoomAPI = new ZoomAPI();
 
 type TimeSlotCellProps = {
   id: string;
@@ -102,38 +104,42 @@ function App() {
   };
 
   const onMeetingConfirmation = async () => {
-    // call Zoom API
+    if (meetingStartTime) {
+      await zoomAPI.createMeeting(meetingStartTime);
+    }
   };
   return (
-    <div
-      className="App"
-      onMouseDown={e => onMouseDown(e)}
-      onMouseUp={e => onMouseUp(e)}
-      onMouseMove={e => onMouseMove(e)}
-    >
-      <h1>Book a zoom call</h1>
-      <div className="Grid">
-        {isDragging ? (
-          <SelectOverlay
-            top={startingDivCoordinates.top}
-            left={startingDivCoordinates.left}
-            height={overlayHeight}
-            width={COLUMN_WITDH}
-          />
-        ) : null}
-        <DayColumn day="2022-02-27" />
-        <DayColumn day="2022-02-28" />
-        <DayColumn day="2022-03-01" />
-        <DayColumn day="2022-03-02" />
-        <DayColumn day="2022-03-03" />
+    <>
+      <div
+        className="App"
+        onMouseDown={e => onMouseDown(e)}
+        onMouseUp={e => onMouseUp(e)}
+        onMouseMove={e => onMouseMove(e)}
+      >
+        <h1>Book a zoom call</h1>
+        <div className="Grid">
+          {isDragging ? (
+            <SelectOverlay
+              top={startingDivCoordinates.top}
+              left={startingDivCoordinates.left}
+              height={overlayHeight}
+              width={COLUMN_WITDH}
+            />
+          ) : null}
+          <DayColumn day="2022-02-27" />
+          <DayColumn day="2022-02-28" />
+          <DayColumn day="2022-03-01" />
+          <DayColumn day="2022-03-02" />
+          <DayColumn day="2022-03-03" />
+        </div>
       </div>
-      {isModalOpen && (
+      {isModalOpen && meetingStartTime && (
         <Modal setIsModalOpen={setIsModalOpen} onClose={onMeetingConfirmation}>
           <p>Heure de début : {meetingStartTime} </p>
           <p>Heure de début : {meetingEndTime} </p>
         </Modal>
       )}
-    </div>
+    </>
   );
 }
 
