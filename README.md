@@ -1,46 +1,49 @@
-# Getting Started with Create React App
+# Avizio Tech Test
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+⚠️ WARNING : This project is to be used on local environnement only, as it allow to use the Zoom API with the provided account and book a meeting without be connected on Zoom
 
-## Available Scripts
+## Setup
 
-In the project directory, you can run:
+1. Login to the Zoom account with the Credentials provided
+2. Go to the [Zoom API Dashboard](https://marketplace.zoom.us/user/build) and select the "Avizio Tech Test" app. In the "App Crendentials" tab, select "View JWT token" and copy the token that will be used to book the meetings against the API.
+3. Create an `.env`file like this
 
-### `npm start`
+```
+ZOOM_JWT="<your_copied_token_here>"
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+4. Start the localhost server, by default running on port 5000
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```
+node server.js
+```
 
-### `npm test`
+5. Start the React frontend, by default runnning on port 3000
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+npm start
+```
 
-### `npm run build`
+## Architecture
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+My approache here is :
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Draw many div, representing time slots that the user can book. These div have uniques ids that reprent the time slot and these are used to identify the slots from the mouse events
+2. Reacting on 3 mouse events :
+   1. onMouseDown to detect which was the first time slot cliked. This will be the beginning of the Zoom meeting
+   2. onMouseMove to draw in real time an overlay, giving the user a visual indication of the time slots he's currently booking
+   3. onMouseUp to detect the last time slot clicked, hence the end of the Zoom meeting. After that event, the modal showing details & asking for confirmation is displayed
+3. When the user validate, create the Zoom Meeting on the API. To get faster to the point & considering this was just a demo that will not go on production, I decided to use the Zoom JWT authentication mechanism (usually resserved for server to server application - since here it's possible to impersonate a user without credentials). Seeing that the Zoom API does not allow to be called from a browser, I made a very simple express server (`server.js`) that just relays the request.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Possible improvements
 
-### `npm run eject`
+I decided to make some tradeoffs considering the time advised for the test. Theses points could be improved for a real-life app
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. I've hardcoded the days for the calendar. We could allow to change weeks by adding "previous" & "next" buttons above the calendar view and generate the DayColumn component accordingly
+2. Implement a standard OAuth2.0 mechanism to force the user to loggin on Zoom, enter his credentials, get a valid temporary token, and call the API with that token.
+3. In a more complex app, a more enforced separation between the React "presentation" components and and "logic" components could help the codebase scale
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Notes
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- If there is any issue, I'm available by mail for clarifications !
+- This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

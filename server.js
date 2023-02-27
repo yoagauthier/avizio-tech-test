@@ -17,12 +17,15 @@ app.get('/*', (req, res) => {
 });
 
 app.post('/create-zoom-meeting', async (req, res) => {
-  console.log('req', req.body);
   let zoomResponse;
   try {
     zoomResponse = await axios.post(
       'https://api.zoom.us/v2/users/me/meetings',
-      { startAt: req.body.startAt },
+      {
+        start_time: req.body.start_time,
+        duration: req.body.duration,
+        topic: req.body.topic,
+      },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -30,11 +33,11 @@ app.post('/create-zoom-meeting', async (req, res) => {
         },
       },
     );
+    console.log(zoomResponse);
   } catch (e) {
     console.log('Issue creating the meeting on the Zoom API', e);
     return res.status(500).send();
   }
-  console.log('ended', zoomResponse);
   return res.status(200).send('Success');
 });
 

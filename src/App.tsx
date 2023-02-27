@@ -10,7 +10,9 @@ type TimeSlotCellProps = {
   id: string;
   displayedHour: number;
 };
-
+/**
+ * Draws a time slot on the calendar grid
+ */
 function TimeSlotCell(props: TimeSlotCellProps) {
   return (
     <div id={props.id} className="TimeSlotCell" style={{ height: EVENT_HEIGHT }}>
@@ -26,6 +28,10 @@ type SelectOverlayProps = {
   height: number | null;
 };
 
+/**
+ * This is the Drag & Select component that is used to show the user the time slot
+ * he is currently booking
+ */
 function SelectOverlay(props: SelectOverlayProps) {
   return (
     <div
@@ -49,6 +55,9 @@ type DayColumnProps = {
   day: string; // format YYYY-MM-DD
 };
 
+/**
+ * This component represents a day where the time slots can bee booked
+ */
 function DayColumn(props: DayColumnProps) {
   return (
     <div
@@ -60,8 +69,8 @@ function DayColumn(props: DayColumnProps) {
       <h2>{props.day}</h2>
       {Array.from(Array(24).keys()).map(hour => (
         <TimeSlotCell
-          key={`${props.day}T${hour}:00Z`}
-          id={`${props.day}T${hour}:00Z`}
+          key={`${props.day}T${hour}:00:00Z`}
+          id={`${props.day}T${hour}:00:00Z`}
           displayedHour={hour}
         />
       ))}
@@ -104,10 +113,16 @@ function App() {
   };
 
   const onMeetingConfirmation = async () => {
-    if (meetingStartTime) {
+    if (meetingStartTime && meetingEndTime) {
+      const endTimeAsDate = new Date(meetingEndTime);
+      const startTimeAsDate = new Date(meetingStartTime);
+      // in minutes
+      const duration = (endTimeAsDate.getTime() - startTimeAsDate.getTime()) / (60 * 1000);
       try {
         await axios.post('http://localhost:5000/create-zoom-meeting', {
-          startAt: meetingStartTime,
+          start_time: meetingStartTime,
+          duration,
+          topic: meetingTopic,
         });
       } catch (e) {
         console.error('Issue calling backend', e);
