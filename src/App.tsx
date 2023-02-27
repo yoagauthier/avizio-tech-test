@@ -1,37 +1,30 @@
 import React, { useState } from 'react';
 import './App.css';
 
-const COLUMN_WITDH = 80;
+const COLUMN_WITDH = 120;
 export const EVENT_HEIGHT = 20;
 
-type CellProps = {
+type TimeSlotCellProps = {
+  id: string;
   displayedHour: number;
-  onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
 };
 
-function Cell(props: CellProps) {
+function TimeSlotCell(props: TimeSlotCellProps) {
   return (
-    <div
-      onMouseDown={e => props.onMouseDown(e)}
-      onMouseUp={e => props.onMouseUp(e)}
-      onMouseMove={e => props.onMouseMove(e)}
-      style={{ height: EVENT_HEIGHT }}
-    >
+    <div id={props.id} style={{ height: EVENT_HEIGHT }}>
       {props.displayedHour}:00
     </div>
   );
 }
 
-type OverlayProps = {
+type SelectOverlayProps = {
   top: number | null;
   left: number | null;
   width: number;
   height: number | null;
 };
 
-function Overlay(props: OverlayProps) {
+function SelectOverlay(props: SelectOverlayProps) {
   return (
     <div
       className="Overlay"
@@ -40,6 +33,7 @@ function Overlay(props: OverlayProps) {
         left: `${props.left}px`,
         width: `${props.width}px`,
         height: `${props.height}px`,
+        pointerEvents: 'none', // This is needed because otherwise the onMouseMove and onMouseUp events have not the time slot div as target
       }}
     />
   );
@@ -49,24 +43,48 @@ export function calculateOverlayHeight(startingDivTop: number, cursorYPosition: 
   return (Math.floor((cursorYPosition - startingDivTop) / EVENT_HEIGHT) + 1) * EVENT_HEIGHT;
 }
 
-function DayColumn() {
+type DayColumnProps = {
+  day: string; // format YYYY-MM-DD
+};
+
+function DayColumn(props: DayColumnProps) {
+  return (
+    <div
+      className="DayColumn"
+      style={{
+        width: COLUMN_WITDH,
+      }}
+    >
+      <h2>{props.day}</h2>
+      {Array.from(Array(24).keys()).map(hour => (
+        <TimeSlotCell
+          key={`${props.day}T${hour}:00`}
+          id={`${props.day}T${hour}:00`}
+          displayedHour={hour}
+        />
+      ))}
+    </div>
+  );
+}
+
+function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [startingDivCoordinates, setStartingDivCoordinates] = useState({ top: null, left: null });
   const [overlayHeight, setOverlayHeight] = useState<number | null>(null);
+  const [meetingStartTime, setMeetingStartTime] = useState<string | null>(null);
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
+    // ts-ignore below are to deal with issues of target attribues
     // @ts-ignore
     setStartingDivCoordinates({ top: e.target.offsetTop, left: e.target.offsetLeft });
-    console.log('onMouseDown', e);
+    // @ts-ignore
+    setMeetingStartTime(e.target.id);
   };
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isDragging && startingDivCoordinates.top) {
-      console.log('onMouseMove', e);
-
       const tempOverlayHeight = calculateOverlayHeight(startingDivCoordinates.top, e.pageY);
-      console.log(tempOverlayHeight);
       setOverlayHeight(tempOverlayHeight);
     }
   };
@@ -75,44 +93,33 @@ function DayColumn() {
     setIsDragging(false);
     setStartingDivCoordinates({ top: null, left: null });
     setOverlayHeight(null);
-
-    console.log('onMouseUp', e);
+    // const meetingStart = meetingStartTime;
+    // @ts-ignore
+    // const meetingEnd = e.target.id;
+    // open the modal with the relevant data
   };
   return (
     <div
-      className="DayColumn"
-      style={{
-        width: COLUMN_WITDH,
-      }}
+      className="App"
+      onMouseDown={e => onMouseDown(e)}
+      onMouseUp={e => onMouseUp(e)}
+      onMouseMove={e => onMouseMove(e)}
     >
-      {isDragging ? (
-        <Overlay
-          top={startingDivCoordinates.top}
-          left={startingDivCoordinates.left}
-          height={overlayHeight}
-          width={COLUMN_WITDH}
-        />
-      ) : null}
-      {Array.from(Array(24).keys()).map(hour => (
-        <Cell
-          key={hour}
-          displayedHour={hour}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-        />
-      ))}
-    </div>
-  );
-}
-
-function App() {
-  return (
-    <div className="App">
+      <h1>Book a zoom call</h1>
       <div className="Grid">
-        <DayColumn />
-        <DayColumn />
-        <DayColumn />
+        {isDragging ? (
+          <SelectOverlay
+            top={startingDivCoordinates.top}
+            left={startingDivCoordinates.left}
+            height={overlayHeight}
+            width={COLUMN_WITDH}
+          />
+        ) : null}
+        <DayColumn day="2022-02-27" />
+        <DayColumn day="2022-02-28" />
+        <DayColumn day="2022-03-01" />
+        <DayColumn day="2022-03-02" />
+        <DayColumn day="2022-03-03" />
       </div>
     </div>
   );
