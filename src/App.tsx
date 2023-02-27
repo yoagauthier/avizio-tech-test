@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Modal from './Modal';
 import './App.css';
 
 const COLUMN_WITDH = 120;
@@ -72,6 +73,8 @@ function App() {
   const [startingDivCoordinates, setStartingDivCoordinates] = useState({ top: null, left: null });
   const [overlayHeight, setOverlayHeight] = useState<number | null>(null);
   const [meetingStartTime, setMeetingStartTime] = useState<string | null>(null);
+  const [meetingEndTime, setMeetingEndTime] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
@@ -93,10 +96,13 @@ function App() {
     setIsDragging(false);
     setStartingDivCoordinates({ top: null, left: null });
     setOverlayHeight(null);
-    // const meetingStart = meetingStartTime;
     // @ts-ignore
-    // const meetingEnd = e.target.id;
-    // open the modal with the relevant data
+    setMeetingEndTime(e.target.id);
+    setIsModalOpen(true);
+  };
+
+  const onMeetingConfirmation = async () => {
+    // call Zoom API
   };
   return (
     <div
@@ -121,6 +127,12 @@ function App() {
         <DayColumn day="2022-03-02" />
         <DayColumn day="2022-03-03" />
       </div>
+      {isModalOpen && (
+        <Modal setIsModalOpen={setIsModalOpen} onClose={onMeetingConfirmation}>
+          <p>Heure de début : {meetingStartTime} </p>
+          <p>Heure de début : {meetingEndTime} </p>
+        </Modal>
+      )}
     </div>
   );
 }
